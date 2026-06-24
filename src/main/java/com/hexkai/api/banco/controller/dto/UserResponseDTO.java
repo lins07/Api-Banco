@@ -1,4 +1,4 @@
-package com.hexkai.api.banco.repository;
+package com.hexkai.api.banco.controller.dto;
 
 import java.util.UUID;
 

@@ -1,9 +1,9 @@
 package com.hexkai.api.banco.service;
 
-import com.hexkai.api.banco.controller.UserCreateDTO;
+import com.hexkai.api.banco.controller.dto.UserCreateDTO;
+import com.hexkai.api.banco.controller.dto.UserResponseDTO;
 import com.hexkai.api.banco.domain.models.User;
 import com.hexkai.api.banco.repository.UserRepository;
-import com.hexkai.api.banco.repository.UserResponseDTO;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

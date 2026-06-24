@@ -1,4 +1,4 @@
-package com.hexkai.api.banco.controller;
+package com.hexkai.api.banco.controller.dto;
 
 public record UserCreateDTO(
         String fullName,
