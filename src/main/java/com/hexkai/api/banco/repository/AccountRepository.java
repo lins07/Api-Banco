@@ -1,7 +1,8 @@
 package com.hexkai.api.banco.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.hexkai.api.banco.domain.models.Account;
+
+import com.hexkai.api.banco.domain.model.Account;
 
 import java.util.Optional;
 import java.util.UUID;

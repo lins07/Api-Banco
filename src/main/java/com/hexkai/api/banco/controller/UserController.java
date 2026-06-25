@@ -17,6 +17,12 @@ public class UserController {
 
     private final UserService userService;
 
+    @GetMapping("/cpf/{cpf}")
+    public ResponseEntity<UserResponseDTO> findByCpf(@PathVariable String cpf) {
+        UserResponseDTO response = userService.findByCpf(cpf);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserCreateDTO dto) {
         // Envia o DTO para o Service fazer as validações e salvar no banco

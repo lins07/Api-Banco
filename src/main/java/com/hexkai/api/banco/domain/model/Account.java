@@ -1,4 +1,4 @@
-package com.hexkai.api.banco.domain.models;
+package com.hexkai.api.banco.domain.model;
 
 import com.hexkai.api.banco.domain.enums.AccountType;
 import jakarta.persistence.*;

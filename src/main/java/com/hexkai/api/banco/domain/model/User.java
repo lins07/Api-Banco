@@ -1,4 +1,4 @@
-package com.hexkai.api.banco.domain.models;
+package com.hexkai.api.banco.domain.model;
 
 import jakarta.persistence.*;
 import lombok.*;

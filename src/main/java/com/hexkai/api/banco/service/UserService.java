@@ -2,7 +2,7 @@ package com.hexkai.api.banco.service;
 
 import com.hexkai.api.banco.controller.dto.UserCreateDTO;
 import com.hexkai.api.banco.controller.dto.UserResponseDTO;
-import com.hexkai.api.banco.domain.models.User;
+import com.hexkai.api.banco.domain.model.User;
 import com.hexkai.api.banco.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -14,6 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+
+    @Transactional(readOnly = true)
+    public UserResponseDTO findByCpf(String cpf) {
+        User user = userRepository.findByCpf(cpf)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário com o CPF informado não foi encontrado."));
+        return new UserResponseDTO(user);
+    }
 
     @Transactional
     public UserResponseDTO createUser(UserCreateDTO dto) {

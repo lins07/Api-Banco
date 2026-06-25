@@ -2,7 +2,7 @@ package com.hexkai.api.banco.controller.dto;
 
 import java.util.UUID;
 
-import com.hexkai.api.banco.domain.models.User;
+import com.hexkai.api.banco.domain.model.User;
 
 public record UserResponseDTO(
         UUID id,
