@@ -3,6 +3,7 @@ package com.hexkai.api.banco.service;
 import com.hexkai.api.banco.controller.dto.AccountCreateDTO;
 import com.hexkai.api.banco.controller.dto.AccountResponseDTO;
 import com.hexkai.api.banco.controller.dto.TransactionRequestDTO;
+import com.hexkai.api.banco.controller.dto.TransferRequestDTO;
 import com.hexkai.api.banco.domain.enums.AccountType;
 import com.hexkai.api.banco.domain.model.Account;
 import com.hexkai.api.banco.domain.model.User;
@@ -84,5 +85,41 @@ public class AccountService {
         Random random = new Random();
         int number = 100000 + random.nextInt(900000);
         return String.valueOf(number);
+    }
+
+    @Transactional
+    public AccountResponseDTO transfer(UUID sourceAccountId, TransferRequestDTO dto) {
+        
+        if (dto.amount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("O valor da transferência deve ser maior que zero.");
+        }
+
+       
+        if (sourceAccountId.equals(dto.targetAccountId())) {
+            throw new IllegalArgumentException("Não é possível transferir para a própria conta.");
+        }
+
+       
+        Account sourceAccount = accountRepository.findById(sourceAccountId)
+                .orElseThrow(() -> new IllegalArgumentException("Conta de origem não encontrada."));
+
+       
+        Account targetAccount = accountRepository.findById(dto.targetAccountId())
+                .orElseThrow(() -> new IllegalArgumentException("Conta de destino não encontrada."));
+
+       
+        if (sourceAccount.getBalance().compareTo(dto.amount()) < 0) {
+            throw new IllegalArgumentException("Saldo insuficiente para realizar a transferência.");
+        }
+
+      
+        sourceAccount.setBalance(sourceAccount.getBalance().subtract(dto.amount()));
+        targetAccount.setBalance(targetAccount.getBalance().add(dto.amount()));
+
+       
+        accountRepository.save(targetAccount);
+        Account savedSourceAccount = accountRepository.save(sourceAccount);
+
+        return new AccountResponseDTO(savedSourceAccount);
     }
 }

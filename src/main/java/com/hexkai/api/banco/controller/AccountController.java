@@ -3,6 +3,7 @@ package com.hexkai.api.banco.controller;
 import com.hexkai.api.banco.controller.dto.AccountCreateDTO;
 import com.hexkai.api.banco.controller.dto.AccountResponseDTO;
 import com.hexkai.api.banco.controller.dto.TransactionRequestDTO;
+import com.hexkai.api.banco.controller.dto.TransferRequestDTO;
 import com.hexkai.api.banco.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -47,5 +48,14 @@ public class AccountController {
         
         AccountResponseDTO response = accountService.withdraw(id, dto);
         return ResponseEntity.ok(response); 
+    }
+
+    @PostMapping("/{id}/transfer")
+    public ResponseEntity<AccountResponseDTO> transfer(
+            @PathVariable UUID id, 
+            @RequestBody TransferRequestDTO dto) {
+        
+        AccountResponseDTO response = accountService.transfer(id, dto);
+        return ResponseEntity.ok(response);
     }
 }
