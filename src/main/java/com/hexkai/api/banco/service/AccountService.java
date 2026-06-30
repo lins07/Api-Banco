@@ -3,17 +3,22 @@ package com.hexkai.api.banco.service;
 import com.hexkai.api.banco.controller.dto.AccountCreateDTO;
 import com.hexkai.api.banco.controller.dto.AccountResponseDTO;
 import com.hexkai.api.banco.controller.dto.TransactionRequestDTO;
+import com.hexkai.api.banco.controller.dto.TransactionResponseDTO;
 import com.hexkai.api.banco.controller.dto.TransferRequestDTO;
 import com.hexkai.api.banco.domain.enums.AccountType;
+import com.hexkai.api.banco.domain.enums.TransactionType;
 import com.hexkai.api.banco.domain.model.Account;
+import com.hexkai.api.banco.domain.model.Transaction;
 import com.hexkai.api.banco.domain.model.User;
 import com.hexkai.api.banco.repository.AccountRepository;
+import com.hexkai.api.banco.repository.TransactionRepository;
 import com.hexkai.api.banco.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -23,6 +28,7 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
+    private final TransactionRepository transactionRepository;
 
     @Transactional
     public AccountResponseDTO createAccount(AccountCreateDTO dto) {
@@ -44,19 +50,19 @@ public class AccountService {
 
     @Transactional
     public AccountResponseDTO deposit(UUID accountId, TransactionRequestDTO dto) {
-        // Validação básica: O valor precisa ser maior que zero
+        
         if (dto.amount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("O valor do depósito deve ser maior que zero.");
         }
 
-        // Busca a conta
+        
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalArgumentException("Conta não encontrada."));
 
-        // Adiciona o valor ao saldo atual
+       
         account.setBalance(account.getBalance().add(dto.amount()));
 
-        // Salva e devolve o DTO atualizado
+        registerTransaction(account, TransactionType.DEPOSIT, dto.amount());
         Account savedAccount = accountRepository.save(account);
         return new AccountResponseDTO(savedAccount);
     }
@@ -75,6 +81,8 @@ public class AccountService {
         }
 
         account.setBalance(account.getBalance().subtract(dto.amount()));
+
+        registerTransaction(account, TransactionType.WITHDRAWAL, dto.amount());
 
         Account savedAccount = accountRepository.save(account);
         return new AccountResponseDTO(savedAccount);
@@ -116,10 +124,35 @@ public class AccountService {
         sourceAccount.setBalance(sourceAccount.getBalance().subtract(dto.amount()));
         targetAccount.setBalance(targetAccount.getBalance().add(dto.amount()));
 
+        registerTransaction(sourceAccount, TransactionType.TRANSFER_OUT, dto.amount());
+        registerTransaction(targetAccount, TransactionType.TRANSFER_IN, dto.amount());
+
        
         accountRepository.save(targetAccount);
         Account savedSourceAccount = accountRepository.save(sourceAccount);
 
         return new AccountResponseDTO(savedSourceAccount);
+    }
+
+    
+    private void registerTransaction(Account account, TransactionType type, BigDecimal amount) {
+        Transaction transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setType(type);
+        transaction.setAmount(amount);
+        transactionRepository.save(transaction);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TransactionResponseDTO> getStatement(UUID accountId) {
+        
+        if (!accountRepository.existsById(accountId)) {
+            throw new IllegalArgumentException("Conta não encontrada.");
+        }
+
+        return transactionRepository.findByAccountIdOrderByCreatedAtDesc(accountId)
+                .stream()
+                .map(TransactionResponseDTO::new)
+                .toList();
     }
 }
