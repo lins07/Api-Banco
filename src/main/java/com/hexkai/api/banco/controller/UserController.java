@@ -25,11 +25,8 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserCreateDTO dto) {
-        // Envia o DTO para o Service fazer as validações e salvar no banco
         UserResponseDTO response = userService.createUser(dto);
         
-        // Padrão de mercado (REST Nível 2): Retorna o status 201 (Created) 
-        // e coloca no cabeçalho (Header) o link exato de onde o usuário recém-criado pode ser acessado.
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(response.id())
